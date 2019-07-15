@@ -1,0 +1,39 @@
+---
+- name: generate ironic json file
+  hosts: all
+  gather_facts: false
+  tasks:
+    - name: Get several inventories
+      redfish_facts:
+        category: Systems
+        command: GetNicInventory
+        baseuri: "{{ bmcip }}"
+        username: "{{ bmcuser }}"
+        password: "{{ bmcpassword }}"
+      delegate_to: localhost
+      register: result
+
+    - name: Copy Results to Output File
+      copy:
+        content: "{{ result | to_nice_json }}"
+        dest: "{{inventory_hostname}}.nic.json"
+      delegate_to: localhost
+
+    - name: Add Master Vars and Master Line
+      shell: |
+        echo '[masters:vars]'>>hosts 
+        echo domain={{ domain }}>>hosts
+        echo cluster={{ cluster }}>>hosts
+        echo ipmi_username={{ bmcuser }}>>hosts
+        echo ipmi_password={{ bmcpassword }}>>hosts
+        echo '[masters]' >> hosts
+      delegate_to: localhost
+      run_once: True
+
+    - name: Add Master Hosts Lines
+      shell: |
+        macaddress=`jq -r '.ansible_facts.redfish_facts.nic.entries[0][1][]|select(.Description=="Integrated NIC 1 Port 1 Partition 1")|.PermanentMACAddress' {{inventory_hostname}}.nic.json`
+        cat << EOF >> hosts
+        {{ inventory_hostname }} ipmi_address={{ bmcip }} mac=$macaddress disk=59
+        EOF
+      delegate_to: localhost
