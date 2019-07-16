@@ -59,9 +59,9 @@ echo cluster=$clustername>>hosts
 ################################################################## 
 
 if (ansible-playbook -i hosts redfish.yml >/dev/null 2>&1); then
-  echo Access to RedFish enabled BMC successful: Yes
+  echo Access to RedFish enabled BMC: Success
 else
-  echo Access to RedFish enabled BMC successful: Failed; exit
+  echo Access to RedFish enabled BMC: Failed; exit
 fi
 
 
@@ -70,9 +70,9 @@ fi
 ##################################################################
 
 if (ansible-playbook -i hosts make_ironic_json.yml >/dev/null 2>&1); then
-  echo Generation of Ironic JSON sucessful: Yes
+  echo Generation of Ironic JSON: Success
 else
-  echo Generation of Ironic JSON sucessful: Failed; exit
+  echo Generation of Ironic JSON: Failed; exit
 fi
 
 ##################################################################
