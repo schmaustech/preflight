@@ -29,11 +29,24 @@
         echo '[masters]' >> hosts
       delegate_to: localhost
       run_once: True
+     
+    - name: DHCP Scope Requirements
+      shell: |
+        cat << EOF > dhcps
+        Ensure the following hostnames exists in DNS and the MAC address is defined in DHCP scope:
+        ------------------------------------------------------------------------------------------
+        EOF
+      delegate_to: localhost
+      run_once: True
+
 
     - name: Add Master Hosts Lines
       shell: |
         macaddress=`jq -r '.ansible_facts.redfish_facts.nic.entries[0][1][]|select(.Description=="Integrated NIC 1 Port 1 Partition 1")|.PermanentMACAddress' {{inventory_hostname}}.nic.json`
         cat << EOF >> hosts
         {{ inventory_hostname }} ipmi_address={{ bmcip }} mac=$macaddress disk=59
+        EOF
+        cat << EOF >> dhcps
+        DNS Entry: {{ inventory_hostname }}.{{ cluster }}.{{ domain }}  MAC Address for DHCP Scope: $macaddress
         EOF
       delegate_to: localhost
