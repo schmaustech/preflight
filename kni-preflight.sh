@@ -28,17 +28,10 @@ dnsname=`nslookup $bootstrapip|grep name| cut -d= -f2|sed s'/^ //'g|sed s'/.$//g
 hostname=`echo $dnsname|awk -F. {'print $1'}`
 clustername=`echo $dnsname|awk -F. {'print $2'}`
 domain=`echo $dnsname|sed "s/$hostname.//g"|sed "s/$clustername.//g"`
-apivip=api.$clustername.$domain
-echo DNS Name: $dnsname
-echo Hostname: $hostname
+echo Hostname Long: $dnsname
+echo Hostname Short: $hostname
 echo Cluster Name: $clustername
-echo Domain: $domain
-echo API Name: $apivip
-if (getent hosts $apivip >/dev/null 2>&1); then
-  echo API Name Exists: Yes
-else 
-  echo API Name Exists: Failed; exit
-fi
+echo DNS Domain: $domain
 
 ##################################################################
 # Build initial inventory file					 #
