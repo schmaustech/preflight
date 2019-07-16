@@ -58,10 +58,25 @@ echo cluster=$clustername>>hosts
 # Run redfish.yml Playbook					 #                                                              
 ################################################################## 
 
-ansible-playbook -i hosts redfish.yml
+if (ansible-playbook -i hosts redfish.yml >/dev/null 2>&1); then
+  echo Access to RedFish enabled BMC successful: Yes
+else
+  echo Access to RedFish enabled BMC successful: Failed; exit
+fi
+
 
 ##################################################################
 # Run make_ironic.yml Playbook					 #
 ##################################################################
 
-ansible-playbook -i hosts make_ironic_json.yml
+if (ansible-playbook -i hosts make_ironic_json.yml >/dev/null 2>&1); then
+  echo Generation of Ironic JSON sucessful: Yes
+else
+  echo Generation of Ironic JSON sucessful: Failed; exit
+fi
+
+##################################################################
+# Cat Out DHCP/DNS Scope					 #
+##################################################################
+
+cat dhcps
