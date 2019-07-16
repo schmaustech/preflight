@@ -22,8 +22,7 @@ dracpassword=calvin
 # Grab cluster and domain from discovery			 #
 ##################################################################
 
-#bootstrapip=`ip addr show baremetal| grep 'inet ' | cut -d/ -f1 | awk '{ print $2}'`
-bootstrapip=10.19.140.56
+bootstrapip=`ip addr show baremetal| grep 'inet ' | cut -d/ -f1 | awk '{ print $2}'`
 dnsname=`nslookup $bootstrapip|grep name| cut -d= -f2|sed s'/^ //'g|sed s'/.$//g'`
 hostname=`echo $dnsname|awk -F. {'print $1'}`
 clustername=`echo $dnsname|awk -F. {'print $2'}`
