@@ -30,23 +30,32 @@
       delegate_to: localhost
       run_once: True
      
-    - name: DHCP Scope Requirements
+    - name: DNS DHCP Scope Requirements
       shell: |
+        if (getent hosts api.{{ cluster }}.{{ domain }}>/dev/null 2>&1); then apistat="Success"; else apistat="Failed"; fi
+        if (getent hosts test.apps.{{ cluster }}.{{ domain }}>/dev/null 2>&1); then appstat="Success"; else appstat="Failed"; fi
+        if (getent hosts ns1.{{ cluster }}.{{ domain }}>/dev/null 2>&1); then nsstat="Success"; else nsstat="Failed"; fi
         cat << EOF > dhcps
-        Ensure the following hostnames exists in DNS and the MAC address is defined in DHCP scope:
+        Ensure the following hostnames exists in DNS and the MAC address is defined in DHCP scope
+        DNS Entry                               MAC Address                     Status
         ------------------------------------------------------------------------------------------
+        api.{{ cluster }}.{{ domain }}          NA                      $apistat
+        *.apps.{{ cluster }}.{{ domain }}       NA                      $appstat
+        ns1.{{ cluster }}.{{ domain }}          NA                      $nsstat
         EOF
-      delegate_to: localhost
+      delegate_to: localhost   
       run_once: True
 
 
     - name: Add Master Hosts Lines
       shell: |
         macaddress=`jq -r '.ansible_facts.redfish_facts.nic.entries[0][1][]|select(.Description=="Integrated NIC 1 Port 1 Partition 1")|.PermanentMACAddress' {{inventory_hostname}}.nic.json`
+        extmacaddress=`jq -r '.ansible_facts.redfish_facts.nic.entries[0][1][]|select(.Description=="Integrated NIC 1 Port 2 Partition 1")|.PermanentMACAddress' {{inventory_hostname}}.nic.json`
+        if (getent hosts {{ inventory_hostname }}.{{ cluster }}.{{ domain }}>/dev/null 2>&1); then dnstat="Success"; else dnstat="Failed"; fi
         cat << EOF >> hosts
         {{ inventory_hostname }} ipmi_address={{ bmcip }} mac=$macaddress disk=59
         EOF
         cat << EOF >> dhcps
-        DNS Entry: {{ inventory_hostname }}.{{ cluster }}.{{ domain }}  MAC Address for DHCP Scope: $macaddress
+        {{ inventory_hostname }}.{{ cluster }}.{{ domain }}     $extmacaddress  $dnstat
         EOF
       delegate_to: localhost
