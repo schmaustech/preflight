@@ -51,8 +51,8 @@
       shell: |
         macaddress=`jq -r '.ansible_facts.redfish_facts.nic.entries[0][1][]|select(.Description=="Integrated NIC 1 Port 1 Partition 1")|.PermanentMACAddress' {{inventory_hostname}}.nic.json`
         extmacaddress=`jq -r '.ansible_facts.redfish_facts.nic.entries[0][1][]|select(.Description=="Integrated NIC 1 Port 2 Partition 1")|.PermanentMACAddress' {{inventory_hostname}}.nic.json`
-        dhcpserver=`grep dhcp-server-identifier /var/lib/dhclient/dhclient--baremetal.lease | uniq | sed 's/;//g'| awk {'print $3'}`
-        if (getent hosts {{ inventory_hostname }}.{{ cluster }}.{{ domain }}>/dev/null 2>&1) && (./check_dhcp -i baremetal -s $dhcpserver -m $extmacaddress); then dnstat="Success"; else dnstat="Failed"; fi
+        if (grep NM_CONTROLLED=no /etc/sysconfig/network-scripts/*baremetal); then dhcpserver=`grep dhcp-server-identifier /var/lib/dhclient/*baremetal.lease | uniq | sed 's/;//g'| awk {'print $3'}`; else dhcpserver=`grep SERVER_ADDRESS /var/lib/NetworkManager/*baremetal.lease|uniq|sed 's/SERVER_ADDRESS=//g'`; fi
+        if (getent hosts {{ inventory_hostname }}.{{ cluster }}.{{ domain }}>/dev/null 2>&1) && (./check_dhcp -u -i baremetal -s $dhcpserver -m $extmacaddress); then dnstat="Success"; else dnstat="Failed"; fi
         cat << EOF >> hosts
         {{ inventory_hostname }} ipmi_address={{ bmcip }} mac=$macaddress disk=59
         EOF
