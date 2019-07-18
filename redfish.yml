@@ -36,8 +36,10 @@
         if (getent hosts test.apps.{{ cluster }}.{{ domain }}>/dev/null 2>&1); then appstat="Success"; else appstat="Failed"; fi
         if (getent hosts ns1.{{ cluster }}.{{ domain }}>/dev/null 2>&1); then nsstat="Success"; else nsstat="Failed"; fi
         cat << EOF > dhcps
-        DNS Entry                               MAC Address                     Status
-        ------------------------------------------------------------------------------------------
+        
+        
+        Hostname                               MacAddress                     Status
+        --------------------                   --------------------           --------------------
         api.{{ cluster }}.{{ domain }}          NA                      $apistat
         *.apps.{{ cluster }}.{{ domain }}       NA                      $appstat
         ns1.{{ cluster }}.{{ domain }}          NA                      $nsstat
