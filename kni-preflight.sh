@@ -71,4 +71,7 @@ fi
 # Cat Out DHCP/DNS Scope					 #
 ##################################################################
 
-cat dhcps
+echo "Ensure the following hostnames exists in DNS and associated MAC address is defined in DHCP scope:"
+echo " "
+echo " "
+column -t dhcps
