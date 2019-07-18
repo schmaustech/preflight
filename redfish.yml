@@ -36,7 +36,6 @@
         if (getent hosts test.apps.{{ cluster }}.{{ domain }}>/dev/null 2>&1); then appstat="Success"; else appstat="Failed"; fi
         if (getent hosts ns1.{{ cluster }}.{{ domain }}>/dev/null 2>&1); then nsstat="Success"; else nsstat="Failed"; fi
         cat << EOF > dhcps
-        Ensure the following hostnames exists in DNS and the MAC address is defined in DHCP scope
         DNS Entry                               MAC Address                     Status
         ------------------------------------------------------------------------------------------
         api.{{ cluster }}.{{ domain }}          NA                      $apistat
