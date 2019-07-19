@@ -70,4 +70,4 @@ fi
 # Cat Out DHCP/DNS Scope					 #
 ##################################################################
 
-column -t dhcps
+column -t dhcps | sed 's/###/ /g'
