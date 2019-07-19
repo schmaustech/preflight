@@ -2,12 +2,6 @@
 ##################################################################
 # This script generates the KNI Configuration files for a deploy #
 ##################################################################
-#echo Enter master-0 iDRAC IP address:
-#read master0
-#echo Enter master-1 iDRAC IP address:
-#read master1
-#echo Enter master-2 iDRAC IP address:
-#read master2
 ##################################################################
 # Set master iDRAC IP addresses & Username/Password for iDRAC    #
 ##################################################################
@@ -29,12 +23,13 @@ hostname=`echo $dnsname|awk -F. {'print $1'}`
 clustername=`echo $dnsname|awk -F. {'print $2'}`
 domain=`echo $dnsname|sed "s/$hostname.//g"|sed "s/$clustername.//g"`
 echo " ">dhcps
-echo "Discovery_Summary">>dhcps
-echo "--------------------  ---------------------
+echo "DiscoveryName  DiscoveryValues">>dhcps
+echo "--------------------  ---------------------"
 echo "Hostname_Long: $dnsname">>dhcps
 echo "Hostname_Short: $hostname">>dhcps
 echo "Clustername: $clustername">>dhcps
 echo "Domain: $domain">>dhcps
+echo " ">>dhcps
 
 ##################################################################
 # Build initial inventory file					 #
@@ -75,7 +70,4 @@ fi
 # Cat Out DHCP/DNS Scope					 #
 ##################################################################
 
-echo "Ensure the following hostnames exists in DNS and associated MAC address is defined in DHCP scope:"
-echo " "
-echo " "
 column -t dhcps
