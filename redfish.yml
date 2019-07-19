@@ -32,9 +32,9 @@
      
     - name: DNS DHCP Scope Requirements
       shell: |
-        if (getent hosts api.{{ cluster }}.{{ domain }}>/dev/null 2>&1); then apistat="Success"; else apistat="Failed"; apiip=`getent hosts api.{{ cluster }}.{{ domain }}|awk {'print $1'}; fi
-        if (getent hosts test.apps.{{ cluster }}.{{ domain }}>/dev/null 2>&1); then appstat="Success"; else appstat="Failed"; appip=`getent hosts test.apps.{{ cluster }}.{{ domain }}|awk {'print $1'}; fi
-        if (getent hosts ns1.{{ cluster }}.{{ domain }}>/dev/null 2>&1); then nsstat="Success"; else nsstat="Failed"; ns1ip=`getent hosts api.{{ cluster }}.{{ domain }}|awk {'print $1'}; fi
+        if (getent hosts api.{{ cluster }}.{{ domain }}>/dev/null 2>&1); then apistat="Success"; apiip=`getent hosts api.{{ cluster }}.{{ domain }}|awk {'print $1'}; else apistat="Failed"; apiip=Error; fi
+        if (getent hosts test.apps.{{ cluster }}.{{ domain }}>/dev/null 2>&1); then appstat="Success"; appip=`getent hosts test.apps.{{ cluster }}.{{ domain }}|awk {'print $1'}; else appstat="Failed"; appip=Error; fi
+        if (getent hosts ns1.{{ cluster }}.{{ domain }}>/dev/null 2>&1); then nsstat="Success"; ns1ip=`getent hosts api.{{ cluster }}.{{ domain }}|awk {'print $1'}` else nsstat="Failed"; ns1ip=Error; fi
         cat << EOF > dhcps
         
         
