@@ -35,8 +35,7 @@
         if (getent hosts api.{{ cluster }}.{{ domain }}>/dev/null 2>&1); then apistat="Success"; apiip=`getent hosts api.{{ cluster }}.{{ domain }}|awk {'print $1'}`; else apistat="Failed"; apiip="Error"; fi
         if (getent hosts test.apps.{{ cluster }}.{{ domain }}>/dev/null 2>&1); then appstat="Success"; appip=`getent hosts test.apps.{{ cluster }}.{{ domain }}|awk {'print $1'}`; else appstat="Failed"; appip="Error"; fi
         if (getent hosts ns1.{{ cluster }}.{{ domain }}>/dev/null 2>&1); then nsstat="Success"; ns1ip=`getent hosts api.{{ cluster }}.{{ domain }}|awk {'print $1'}`; else nsstat="Failed"; ns1ip="Error"; fi
-        cat << EOF > dhcps
-        
+        cat << EOF >> dhcps
         
         Hostname                               MacAddress              IpAddress                  Status
         --------------------                   --------------------    --------------------       --------------------
@@ -58,6 +57,6 @@
         {{ inventory_hostname }} ipmi_address={{ bmcip }} mac=$macaddress disk=59
         EOF
         cat << EOF >> dhcps
-        {{ inventory_hostname }}.{{ cluster }}.{{ domain }}  $extip  $extmacaddress  $dnstat
+        {{ inventory_hostname }}.{{ cluster }}.{{ domain }}  $extmacaddress  $extip  $dnstat
         EOF
       delegate_to: localhost

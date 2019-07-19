@@ -22,15 +22,19 @@ dracpassword=calvin
 # Grab cluster and domain from discovery			 #
 ##################################################################
 
+echo Discovering Cluster Name and Domain...
 bootstrapip=`ip addr show baremetal| grep 'inet ' | cut -d/ -f1 | awk '{ print $2}'`
 dnsname=`nslookup $bootstrapip|grep name| cut -d= -f2|sed s'/^ //'g|sed s'/.$//g'`
 hostname=`echo $dnsname|awk -F. {'print $1'}`
 clustername=`echo $dnsname|awk -F. {'print $2'}`
 domain=`echo $dnsname|sed "s/$hostname.//g"|sed "s/$clustername.//g"`
-echo Hostname Long: $dnsname
-echo Hostname Short: $hostname
-echo Cluster Name: $clustername
-echo DNS Domain: $domain
+echo " ">dhcps
+echo "Discovery_Summary">>dhcps
+echo "--------------------  ---------------------
+echo "Hostname_Long: $dnsname">>dhcps
+echo "Hostname_Short: $hostname">>dhcps
+echo "Clustername: $clustername">>dhcps
+echo "Domain: $domain">>dhcps
 
 ##################################################################
 # Build initial inventory file					 #
