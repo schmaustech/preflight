@@ -32,17 +32,17 @@
      
     - name: DNS DHCP Scope Requirements
       shell: |
-        if (getent hosts api.{{ cluster }}.{{ domain }}>/dev/null 2>&1); then apistat="Success"; else apistat="Failed"; fi
-        if (getent hosts test.apps.{{ cluster }}.{{ domain }}>/dev/null 2>&1); then appstat="Success"; else appstat="Failed"; fi
-        if (getent hosts ns1.{{ cluster }}.{{ domain }}>/dev/null 2>&1); then nsstat="Success"; else nsstat="Failed"; fi
+        if (getent hosts api.{{ cluster }}.{{ domain }}>/dev/null 2>&1); then apistat="Success"; else apistat="Failed"; apiip=`getent hosts api.{{ cluster }}.{{ domain }}|awk {'print $1'}; fi
+        if (getent hosts test.apps.{{ cluster }}.{{ domain }}>/dev/null 2>&1); then appstat="Success"; else appstat="Failed"; appip=`getent hosts test.apps.{{ cluster }}.{{ domain }}|awk {'print $1'}; fi
+        if (getent hosts ns1.{{ cluster }}.{{ domain }}>/dev/null 2>&1); then nsstat="Success"; else nsstat="Failed"; ns1ip=`getent hosts api.{{ cluster }}.{{ domain }}|awk {'print $1'}; fi
         cat << EOF > dhcps
         
         
-        Hostname                               MacAddress                     Status
-        --------------------                   --------------------           --------------------
-        api.{{ cluster }}.{{ domain }}          NA                      $apistat
-        *.apps.{{ cluster }}.{{ domain }}       NA                      $appstat
-        ns1.{{ cluster }}.{{ domain }}          NA                      $nsstat
+        Hostname                               MacAddress              IpAddress                  Status
+        --------------------                   --------------------    --------------------       --------------------
+        api.{{ cluster }}.{{ domain }}          NA                      $apiip                    $apistat
+        *.apps.{{ cluster }}.{{ domain }}       NA                      $appip                    $appstat
+        ns1.{{ cluster }}.{{ domain }}          NA                      $ns1ip                    $nsstat
         EOF
       delegate_to: localhost   
       run_once: True
