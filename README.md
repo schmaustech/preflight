@@ -22,3 +22,4 @@ ns1.rna1.example.com       NA                            192.168.251.145       S
 master-0.rna1.example.com  98:03:9B:61:88:41             192.168.251.142       Success
 master-1.rna1.example.com  98:03:9B:61:88:11             192.168.251.143       Success
 master-2.rna1.example.com  98:03:9B:61:6E:D9             192.168.251.144       Success
+
