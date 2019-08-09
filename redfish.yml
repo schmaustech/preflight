@@ -37,15 +37,14 @@
         if (getent hosts ns1.{{ cluster }}.{{ domain }}>/dev/null 2>&1); then nsstat="Success"; ns1ip=`getent hosts api.{{ cluster }}.{{ domain }}|awk {'print $1'}`; else nsstat="Failed"; ns1ip="Error"; fi
         cat << EOF >> dhcps
         
-        Hostname                               MacAddress              IpAddress                  Status
-        --------------------                   --------------------    --------------------       --------------------
-        api.{{ cluster }}.{{ domain }}          NA                      $apiip                    $apistat
-        *.apps.{{ cluster }}.{{ domain }}       NA                      $appip                    $appstat
-        ns1.{{ cluster }}.{{ domain }}          NA                      $ns1ip                    $nsstat
+        Hostname                               MacAddress              IpAddress                  Interface                Status
+        --------------------                   --------------------    --------------------   --------------------    --------------------
+        api.{{ cluster }}.{{ domain }}          NA                      $apiip                    NA                       $apistat
+        *.apps.{{ cluster }}.{{ domain }}       NA                      $appip                    NA                       $appstat
+        ns1.{{ cluster }}.{{ domain }}          NA                      $ns1ip                    NA                       $nsstat
         EOF
-      delegate_to: localhost   
+      delegate_to: localhost
       run_once: True
-
 
     - name: Add Master Hosts Lines
       shell: |
@@ -53,10 +52,12 @@
         extmacaddress=`jq -r '.ansible_facts.redfish_facts.nic.entries[0][1][]|select(.Description=="Integrated NIC 1 Port 2 Partition 1")|.PermanentMACAddress' {{inventory_hostname}}.nic.json`
         if (grep NM_CONTROLLED=no /etc/sysconfig/network-scripts/*baremetal); then dhcpserver=`grep dhcp-server-identifier /var/lib/dhclient/*baremetal.lease | uniq | sed 's/;//g'| awk {'print $3'}`; else dhcpserver=`grep SERVER_ADDRESS /var/lib/NetworkManager/*baremetal.lease|uniq|sed 's/SERVER_ADDRESS=//g'`; fi
         if (getent hosts {{ inventory_hostname }}.{{ cluster }}.{{ domain }}>/dev/null 2>&1) && (./check_dhcp -u -i baremetal -s $dhcpserver -m $extmacaddress); then dnstat="Success"; extip=`getent hosts {{ inventory_hostname }}.{{ cluster }}.{{ domain }}|awk {'print $1'}`; else dnstat="Failed"; extip="Error"; fi
-        cat << EOF >> hosts
-        {{ inventory_hostname }} ipmi_address={{ bmcip }} mac=$macaddress disk=59
-        EOF
+        if ({{ inventory_hostname }} == *master*); then cat << EOF >> hosts; {{ inventory_hostname }} ipmi_address={{ bmcip }} mac=$macaddress disk=59; EOF; fi
+        #cat << EOF >> hosts
+        #{{ inventory_hostname }} ipmi_address={{ bmcip }} mac=$macaddress disk=59
+        #EOF
         cat << EOF >> dhcps
-        {{ inventory_hostname }}.{{ cluster }}.{{ domain }}  $extmacaddress  $extip  $dnstat
+        {{ inventory_hostname }}.{{ cluster }}.{{ domain }}  $extmacaddress  $extip  External  $dnstat
+        {{ inventory_hostname }}.{{ cluster }}.{{ domain }}  $extmacaddress  $extip  Provisioning  $dnstat
         EOF
       delegate_to: localhost
