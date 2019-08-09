@@ -57,6 +57,6 @@
         EOF
         cat << EOF >> dhcps
         {{ inventory_hostname }}.{{ cluster }}.{{ domain }}  $extmacaddress  $extip  External  $dnstat
-        {{ inventory_hostname }}.{{ cluster }}.{{ domain }}  $macaddress  NA  Provisioning  $dnstat
+        {{ inventory_hostname }}.{{ cluster }}.{{ domain }}  $macaddress  NA  Provisioning  Success
         EOF
       delegate_to: localhost
