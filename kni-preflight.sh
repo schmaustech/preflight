@@ -9,6 +9,7 @@
 master0=172.22.0.151
 master1=172.22.0.152
 master2=172.22.0.153
+worker0=172.22.0.154
 dracuser=root
 dracpassword=calvin
 
@@ -39,6 +40,7 @@ echo [bmcs]>hosts
 echo master-0 bmcip=$master0>>hosts
 echo master-1 bmcip=$master1>>hosts
 echo master-2 bmcip=$master2>>hosts
+echo worker-0 bmcip=$worker0>>hosts
 echo [bmcs:vars]>>hosts
 echo bmcuser=$dracuser>>hosts
 echo bmcpassword=$dracpassword>>hosts
