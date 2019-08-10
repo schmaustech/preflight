@@ -39,9 +39,9 @@
         
         Hostname                               MacAddress              IpAddress                  Interface                Status
         --------------------                   --------------------    --------------------   --------------------    --------------------
-        api.{{ cluster }}.{{ domain }}          NA                      $apiip                    NA                       $apistat
-        *.apps.{{ cluster }}.{{ domain }}       NA                      $appip                    NA                       $appstat
-        ns1.{{ cluster }}.{{ domain }}          NA                      $ns1ip                    NA                       $nsstat
+        api.{{ cluster }}.{{ domain }}          NA                      $apiip                    VIP                       $apistat
+        *.apps.{{ cluster }}.{{ domain }}       NA                      $appip                    VIP                       $appstat
+        ns1.{{ cluster }}.{{ domain }}          NA                      $ns1ip                    VIP                       $nsstat
         EOF
       delegate_to: localhost
       run_once: True
