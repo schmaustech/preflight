@@ -55,6 +55,6 @@
         if (echo "{{ inventory_hostname }}"|grep -q master); then echo "{{ inventory_hostname }} ipmi_address={{ bmcip }} mac=$macaddress disk=59">>hosts; fi
         cat << EOF >> dhcps
         {{ inventory_hostname }}.{{ cluster }}.{{ domain }}  $extmacaddress  $extip  External  $dnstat
-        {{ inventory_hostname }}.{{ cluster }}.{{ domain }}  $macaddress  NA  Internal  Success
+        {{ inventory_hostname }}.{{ cluster }}.{{ domain }}  $macaddress  Unassigned  Internal  Success
         EOF
       delegate_to: localhost
