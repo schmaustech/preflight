@@ -57,6 +57,6 @@
         if (echo "{{ inventory_hostname }}"|grep -q worker-0); then intip=`ip -f inet a show provisioning|sed -En -e 's/.*inet ([0-9.]+).*/\1/p'`; fi
         cat << EOF >> dhcps
         {{ inventory_hostname }}.{{ cluster }}.{{ domain }}  $extmacaddress  $extip  External  $dnstat
-        {{ inventory_hostname }}.{{ cluster }}.{{ domain }}  $macaddress  Unassigned  Internal  Success
+        {{ inventory_hostname }}.{{ cluster }}.{{ domain }}  $macaddress  $intip  Internal  Success
         EOF
       delegate_to: localhost
