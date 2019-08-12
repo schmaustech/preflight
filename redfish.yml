@@ -56,6 +56,6 @@
         if (echo "{{ inventory_hostname }}"|grep -qv master); then extip="NA";dnstat="Success";fi
         cat << EOF >> dhcps
         {{ inventory_hostname }}.{{ cluster }}.{{ domain }}  $extmacaddress  $extip  External  $dnstat
-        {{ inventory_hostname }}.{{ cluster }}.{{ domain }}  $macaddress  NA  Provisioning  Success
+        {{ inventory_hostname }}.{{ cluster }}.{{ domain }}  $macaddress  NA  Internal  Success
         EOF
       delegate_to: localhost
