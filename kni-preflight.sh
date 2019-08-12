@@ -6,15 +6,69 @@
 # Set master iDRAC IP addresses & Username/Password for iDRAC    #
 ##################################################################
 
-master0=172.22.0.151
-master1=172.22.0.152
-master2=172.22.0.153
-worker0=172.22.0.154
-dracuser=root
-dracpassword=calvin
+howto(){
+  echo "Usage: kni-preflight -u username -p password -m master-0-ip,master-1-ip,master-2-ip -w worker-0-ip,worker-1-ip"
+  echo "Example: kni-preflight -u root -p calvin -m 172.22.0.231,172.22.0.232,172.22.0.233 -w 172.22.0.234"
+  echo "Example: kni-preflight -u root -p calvin -d"
+}
+
+df=0
+while getopts u:p:m:w:dh option
+do
+case "${option}"
+in
+u) dracuser=${OPTARG};;
+p) dracpassword=${OPTARG};;
+m) mip=${OPTARG};;
+w) wip=${OPTARG};;
+d) df=1;;
+h) howto; exit 0;;
+\?) howto; exit 1;;
+esac
+done
+
+if ([ -z "$dracuser" ] || [ -z "$dracpassword" ] || [ -z "$mip" ]  || [ -z "$wip" ] && [ "$df" -eq "0" ]) then
+   howto
+   exit 1
+fi
+
+if ([ -z "$dracuser" ] && [ "$df" -eq "1" ]) then
+   dracuser="root"
+fi
+
+if ([ -z "$dracpassword" ] && [ "$df" -eq "1" ]) then
+   dracpassword="calvin"
+fi
+
+if ([ -z "$mip" ] && [ "$df" -eq "1" ]) then
+   mip="172.22.0.231,172.22.0.232,172.22.0.233"
+fi
+
+if ([ -z "$wip" ] && [ "$df" -eq "1" ]) then
+   wip="172.22.0.234"
+fi
+
+if ([ "$df" -eq "1" ]) then
+   dfstatus="Using defaults where no arguments provided..."
+else
+   dfstatus="Using user supplied arguments..."
+fi
+
+IFS=', ' read -r -a mipaddresses <<< "$mip"
+IFS=', ' read -r -a wipaddresses <<< "$wip"
+
+if ([ "${#mipaddresses[@]}" -ne "3" ]) then
+   echo "3 master nodes must be defined.  Please try again."
+   exit
+fi
+
+if [ "${#wipaddresses[@]}" -lt "1" ]; then
+   echo "There needs to be at least 1 worker node defined.  Please try again."
+   exit
+fi
 
 ##################################################################
-# Grab cluster and domain from discovery			 #
+# Grab cluster and domain from discovery			                   #
 ##################################################################
 
 echo Discovering Cluster Name and Domain...
@@ -33,14 +87,27 @@ echo "Domain: $domain">>dhcps
 echo "###">>dhcps
 
 ##################################################################
-# Build initial inventory file					 #
+# Build initial inventory file					                         #
 ##################################################################
 
+echo $dfstatus
+echo "Building initial host inventory file..."
 echo [bmcs]>hosts
-echo master-0 bmcip=$master0>>hosts
-echo master-1 bmcip=$master1>>hosts
-echo master-2 bmcip=$master2>>hosts
-echo worker-0 bmcip=$worker0>>hosts
+
+c=0
+for ipaddr in "${mipaddresses[@]}"
+do
+   echo "master-$c bmcip=$ipaddr">>hosts
+   c=$((c+1))
+done
+
+c=0
+for ipaddr in "${wipaddresses[@]}"
+do
+   echo "worker-$c bmcip=$ipaddr">>hosts
+   c=$((c+1))
+done
+
 echo [bmcs:vars]>>hosts
 echo bmcuser=$dracuser>>hosts
 echo bmcpassword=$dracpassword>>hosts
@@ -48,7 +115,7 @@ echo domain=$domain>>hosts
 echo cluster=$clustername>>hosts
 
 ##################################################################
-# Run redfish.yml Playbook					 #                                                              
+# Run redfish.yml Playbook				                            	 #                                                              
 ################################################################## 
 
 if (ansible-playbook -i hosts redfish.yml >/dev/null 2>&1); then
@@ -59,7 +126,7 @@ fi
 
 
 ##################################################################
-# Run make_ironic.yml Playbook					 #
+# Run make_ironic.yml Playbook				                        	 #
 ##################################################################
 
 if (ansible-playbook -i hosts make_ironic_json.yml >/dev/null 2>&1); then
@@ -69,7 +136,7 @@ else
 fi
 
 ##################################################################
-# Cat Out DHCP/DNS Scope					 #
+# Cat Out DHCP/DNS Scope				                              	 #
 ##################################################################
 
 column -t dhcps | sed 's/###/ /g'
