@@ -1,6 +1,6 @@
 ---
 - name: generate ironic json file
-  hosts: all
+  hosts: bmcs
   gather_facts: false
   tasks:
     - name: Get several inventories
@@ -19,14 +19,12 @@
         dest: "{{inventory_hostname}}.nic.json"
       delegate_to: localhost
 
-    - name: Add Master Vars and Master Line
+    - name: Add Additional Lines to Dynamic Host Inventory File
       shell: |
-        echo '[masters:vars]'>>hosts 
         echo domain={{ domain }}>>hosts
         echo cluster={{ cluster }}>>hosts
         echo ipmi_username={{ bmcuser }}>>hosts
         echo ipmi_password={{ bmcpassword }}>>hosts
-        echo '[masters]' >> hosts
       delegate_to: localhost
       run_once: True
      
@@ -43,6 +41,10 @@
         *.apps.{{ cluster }}.{{ domain }}       NA                      $appip                    VIP                       $appstat
         ns1.{{ cluster }}.{{ domain }}          NA                      $ns1ip                    VIP                       $nsstat
         EOF
+        echo apivip=$apiip>>hosts
+        echo ingressvip=$appip>>hosts
+        echo ns1vip=$ns1ip>>hosts
+        echo '[masters]' >> hosts
       delegate_to: localhost
       run_once: True
 
@@ -53,7 +55,7 @@
         extmacaddress=`jq -r '.ansible_facts.redfish_facts.nic.entries[0][1][]|select(.Description=="Integrated NIC 1 Port 2 Partition 1")|.PermanentMACAddress' {{inventory_hostname}}.nic.json`
         if (grep NM_CONTROLLED=no /etc/sysconfig/network-scripts/*baremetal); then dhcpserver=`grep dhcp-server-identifier /var/lib/dhclient/*baremetal.lease | uniq | sed 's/;//g'| awk {'print $3'}`; else dhcpserver=`grep SERVER_ADDRESS /var/lib/NetworkManager/*baremetal.lease|uniq|sed 's/SERVER_ADDRESS=//g'`; fi
         if (getent hosts {{ inventory_hostname }}.{{ cluster }}.{{ domain }}>/dev/null 2>&1) && (./check_dhcp -u -i baremetal -s $dhcpserver -m $extmacaddress); then dnstat="Success"; extip=`getent hosts {{ inventory_hostname }}.{{ cluster }}.{{ domain }}|awk {'print $1'}`; else dnstat="Failed"; extip="Error"; fi
-        if (echo "{{ inventory_hostname }}"|grep -q master); then echo "{{ inventory_hostname }} ipmi_address={{ bmcip }} mac=$macaddress disk=59">>hosts; fi
+        if (echo "{{ inventory_hostname }}"|grep -q master); then echo "{{ inventory_hostname }} name={{ inventory_hostname }} role=master ipmi_username={{ bmcuser }} ipmi_password={{ bmcpassword }} ipmi_address={{ bmcip }} mac=$macaddress disk=59">>hosts; fi
         if (echo "{{ inventory_hostname }}"|grep -q worker-0); then intip=`ip -f inet a show provisioning|sed -En -e 's/.*inet ([0-9.]+).*/\1/p'`; fi
         cat << EOF >> dhcps
         {{ inventory_hostname }}.{{ cluster }}.{{ domain }}  $extmacaddress  $extip  External  $dnstat
