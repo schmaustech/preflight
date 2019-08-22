@@ -114,6 +114,20 @@ echo bmcpassword=$dracpassword>>hosts
 echo domain=$domain>>hosts
 echo cluster=$clustername>>hosts
 
+#################################################################
+# Determine External Network CIDR                               #
+#################################################################
+
+BARNET=`/usr/bin/ipcalc -n "$(/usr/sbin/ip -o addr show|grep baremetal|grep -v inet6|awk {'print $4'})"|cut -f2 -d=`
+BARCIDR=`/usr/bin/ipcalc -p "$(/usr/sbin/ip -o addr show|grep baremetal|grep -v inet6|awk {'print $4'})"|cut -f2 -d=`
+echo '[bootstrap]'>>hosts
+echo localhost>>hosts
+echo '[bootstrap:vars]'>>hosts
+echo extcidrnet=$BARNET/$BARCIDR>>hosts
+echo numworkers=0>>hosts
+echo nummasters=3>>hosts
+
+
 ##################################################################
 # Run redfish.yml Playbook				                            	 #                                                              
 ################################################################## 
@@ -134,6 +148,17 @@ if (ansible-playbook -i hosts make_ironic_json.yml >/dev/null 2>&1); then
 else
   echo Generation of Ironic JSON: Failed; exit
 fi
+
+##################################################################
+# Run Make Install Config Playbook                               #
+##################################################################
+
+if (ansible-playbook -i hosts make-install-config.yml >/dev/null 2>&1); then
+  echo Generation of Install Config Yaml: Success
+else
+  echo Generation of Install Config Yaml: Failed; exit
+fi
+
 
 ##################################################################
 # Cat Out DHCP/DNS Scope				                              	 #
