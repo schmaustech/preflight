@@ -98,21 +98,18 @@ echo "###">>dhcps
 echo $dfstatus
 echo "Building initial host inventory file..."
 echo [bmcs]>hosts
-
 c=0
 for ipaddr in "${mipaddresses[@]}"
 do
    echo "master-$c bmcip=$ipaddr">>hosts
    c=$((c+1))
 done
-
 c=0
 for ipaddr in "${wipaddresses[@]}"
 do
    echo "worker-$c bmcip=$ipaddr">>hosts
    c=$((c+1))
 done
-
 echo [bmcs:vars]>>hosts
 echo bmcuser=$dracuser>>hosts
 echo bmcpassword=$dracpassword>>hosts
@@ -132,7 +129,6 @@ echo extcidrnet=$BARNET/$BARCIDR>>hosts
 echo numworkers=0>>hosts
 echo nummasters=3>>hosts
 
-
 ##################################################################
 # Run redfish.yml Playbook				                            	 #                                                              
 ################################################################## 
@@ -142,7 +138,6 @@ if (ansible-playbook -i hosts redfish.yml >/dev/null 2>&1); then
 else
   echo Access to RedFish enabled BMC: Failed; exit 1
 fi
-
 
 ##################################################################
 # Run make_ironic.yml Playbook				                        	 #
