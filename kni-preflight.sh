@@ -27,6 +27,11 @@ h) howto; exit 0;;
 esac
 done
 
+KNIUSER=`who am i|awk {'print $1'}`
+if [ $KNIUSER == "root" ]; then
+   echo "KNI-Preflight cannot be run as root and must use sudo"; exit 1
+fi
+
 if ([ -z "$dracuser" ] || [ -z "$dracpassword" ] || [ -z "$mip" ]  || [ -z "$wip" ] && [ "$df" -eq "0" ]) then
    howto
    exit 1
