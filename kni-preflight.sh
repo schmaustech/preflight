@@ -164,6 +164,24 @@ else
   echo Generation of Install Config Yaml: Failed; exit
 fi
 
+##################################################################
+# Add pullsecret to install-config.yaml                          #
+##################################################################
+
+PULLSECRET=pullsecret
+if [ -f "$PULLSECRET" ]; then
+   sed -i "s/^'//" $PULLSECRET
+   sed -i "s/'$//" $PULLSECRET 
+   sed -i "s/PULLSECRETHERE/$(sed 's:/:\\/:g' pullsecret)/" install-config.yaml
+   python -c 'import yaml, sys; yaml.safe_load(sys.stdin)' < install-config.yaml
+   if [ $? -ne 0 ]; then
+      echo "Pullsecret addition to install-config.yaml: Failed"; exit 1
+   else
+      echo "Pullsecret addition to install-config.yaml: Success"
+   fi
+else
+   echo "Pullsecret addition to install-config.yaml: Failed - Missing pullsecret file"; exit 1
+fi
 
 ##################################################################
 # Cat Out DHCP/DNS Scope				                              	 #
