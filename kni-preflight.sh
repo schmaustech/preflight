@@ -64,12 +64,12 @@ IFS=', ' read -r -a wipaddresses <<< "$wip"
 
 if ([ "${#mipaddresses[@]}" -ne "3" ]) then
    echo "3 master nodes must be defined.  Please try again."
-   exit
+   exit 1
 fi
 
 if [ "${#wipaddresses[@]}" -lt "1" ]; then
    echo "There needs to be at least 1 worker node defined.  Please try again."
-   exit
+   exit 1
 fi
 
 ##################################################################
@@ -140,7 +140,7 @@ echo nummasters=3>>hosts
 if (ansible-playbook -i hosts redfish.yml >/dev/null 2>&1); then
   echo Access to RedFish enabled BMC: Success
 else
-  echo Access to RedFish enabled BMC: Failed; exit
+  echo Access to RedFish enabled BMC: Failed; exit 1
 fi
 
 
@@ -151,7 +151,7 @@ fi
 if (ansible-playbook -i hosts make_ironic_json.yml >/dev/null 2>&1); then
   echo Generation of Ironic JSON: Success
 else
-  echo Generation of Ironic JSON: Failed; exit
+  echo Generation of Ironic JSON: Failed; exit 1
 fi
 
 ##################################################################
@@ -161,7 +161,7 @@ fi
 if (ansible-playbook -i hosts make-install-config.yml >/dev/null 2>&1); then
   echo Generation of Install Config Yaml: Success
 else
-  echo Generation of Install Config Yaml: Failed; exit
+  echo Generation of Install Config Yaml: Failed; exit 1
 fi
 
 ##################################################################
@@ -184,7 +184,45 @@ else
 fi
 
 ##################################################################
-# Cat Out DHCP/DNS Scope				                              	 #
+# Add sshkey to install-config.yaml                              #
+##################################################################
+
+SSHKEY=sshkey
+DEFSSHKEY=/home/$KNIUSER/.ssh/id_rsa.pub
+if [ -f "$SSHKEY" ]; then
+   ssh-keygen -l -f $SSHKEY >/dev/null 2>&1
+   if [ $? -ne 0 ]; then
+      echo "SSHkey addition to install-config.yaml: Failed"; exit 1
+   fi
+   echo "SSHkey addition to install-config.yaml: User Supplied"
+   sed -i "s/SSHKEYTHERE/$(sed 's:/:\\/:g' sshkey)/" install-config.yaml
+   python -c 'import yaml, sys; yaml.safe_load(sys.stdin)' < install-config.yaml
+   if [ $? -ne 0 ]; then
+      echo "SSHkey addition to install-config.yaml: Failed"; exit 1
+   else
+      echo "SSHkey addition to install-config.yaml: Success"
+   fi
+else
+   if [ -f "$DEFSSHKEY" ]; then
+      ssh-keygen -l -f $DEFSSHKEY >/dev/null 2>&1
+      if [ $? -ne 0 ]; then
+         echo "SSHkey addition to install-config.yaml: Failed"; exit 1
+      fi
+      echo "SSHkey addition to install-config.yaml: Using Default"
+      sed -i "s/SSHKEYHERE/$(sed 's:/:\\/:g' $DEFSSHKEY)/" install-config.yaml
+      python -c 'import yaml, sys; yaml.safe_load(sys.stdin)' < install-config.yaml
+      if [ $? -ne 0 ]; then
+         echo "SSHkey addition to install-config.yaml: Failed"; exit 1
+      else
+         echo "SSHkey addition to install-config.yaml: Success"
+      fi
+   else
+      echo "SSHkey addition to install-config.yaml: Failed - No Key Found"; exit 1
+   fi
+fi
+
+##################################################################
+# Print Out DHCP/DNS Scope				                             	 #
 ##################################################################
 
 column -t dhcps | sed 's/###/ /g'
