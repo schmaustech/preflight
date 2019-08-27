@@ -1,0 +1,12 @@
+---
+- name: generate ironic json file
+  hosts: all
+  gather_facts: false
+  tasks:
+  - name: generate json file
+    template:
+      src: config_user.j2
+      dest: config_$KNIUSER.sh
+      mode: '0755'
+    delegate_to: localhost
+    run_once: True
