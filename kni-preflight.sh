@@ -160,6 +160,16 @@ else
 fi
 
 ##################################################################
+# Run Make Config User Playbook                                  #
+##################################################################
+
+if (ansible-playbook -i hosts make_config_user.yml >/dev/null 2>&1); then
+  echo Generation of Config_user.sh: Success
+else
+  echo Generation of Config_user.sh: Failed; exit 1
+fi
+
+##################################################################
 # Add pullsecret to install-config.yaml                          #
 ##################################################################
 
@@ -168,6 +178,7 @@ if [ -f "$PULLSECRET" ]; then
    sed -i "s/^'//" $PULLSECRET
    sed -i "s/'$//" $PULLSECRET 
    sed -i "s/PULLSECRETHERE/$(sed 's:/:\\/:g' pullsecret)/" install-config.yaml
+   sed -i "s/PULLSECRETHERE/$(sed 's:/:\\/:g' pullsecret)/" config_$KNIUSER.sh
    python -c 'import yaml, sys; yaml.safe_load(sys.stdin)' < install-config.yaml
    if [ $? -ne 0 ]; then
       echo "Pullsecret addition to install-config.yaml: Failed"; exit 1
