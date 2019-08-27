@@ -202,7 +202,7 @@ if [ -f "$SSHKEY" ]; then
       echo "SSHkey addition to install-config.yaml: Failed"; exit 1
    fi
    echo "SSHkey addition to install-config.yaml: User Supplied"
-   sed -i "s/SSHKEYTHERE/$(sed 's:/:\\/:g' sshkey)/" install-config.yaml
+   sed -i "s/SSHKEYHERE/$(sed 's:/:\\/:g' sshkey)/" install-config.yaml
    python -c 'import yaml, sys; yaml.safe_load(sys.stdin)' < install-config.yaml
    if [ $? -ne 0 ]; then
       echo "SSHkey addition to install-config.yaml: Failed"; exit 1
