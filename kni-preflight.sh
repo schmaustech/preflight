@@ -174,12 +174,12 @@ fi
 # Add pullsecret to install-config.yaml                          #
 ##################################################################
 
-PULLSECRET=pullsecret
+PULLSECRET=pullsecret.txt
 if [ -f "$PULLSECRET" ]; then
    sed -i "s/^'//" $PULLSECRET
    sed -i "s/'$//" $PULLSECRET 
-   sed -i "s/PULLSECRETHERE/$(sed 's:/:\\/:g' pullsecret)/" install-config.yaml
-   sed -i "s/PULLSECRETHERE/$(sed 's:/:\\/:g' pullsecret)/" config_$KNIUSER.sh
+   sed -i "s/PULLSECRETHERE/$(sed 's:/:\\/:g' $PULLSECRET)/" install-config.yaml
+   sed -i "s/PULLSECRETHERE/$(sed 's:/:\\/:g' $PULLSECRET)/" config_$KNIUSER.sh
    python -c 'import yaml, sys; yaml.safe_load(sys.stdin)' < install-config.yaml
    if [ $? -ne 0 ]; then
       echo "Pullsecret addition to install-config.yaml: Failed"; exit 1
@@ -202,7 +202,7 @@ if [ -f "$SSHKEY" ]; then
       echo "SSHkey addition to install-config.yaml: Failed"; exit 1
    fi
    echo "SSHkey addition to install-config.yaml: User Supplied"
-   sed -i "s/SSHKEYHERE/$(sed 's:/:\\/:g' sshkey)/" install-config.yaml
+   sed -i "s/SSHKEYHERE/$(sed 's:/:\\/:g' $SSHKEY)/" install-config.yaml
    python -c 'import yaml, sys; yaml.safe_load(sys.stdin)' < install-config.yaml
    if [ $? -ne 0 ]; then
       echo "SSHkey addition to install-config.yaml: Failed"; exit 1
