@@ -1,0 +1,16 @@
+{% for host in groups['bootstrap'] %}
+#!/bin/bash
+set +x
+export PULL_SECRET='PULLSECRETHERE'
+set -x
+export NODES_FILE="/home/{{ lookup('env','KNIUSER') }}/ironic_hosts.json"
+export INT_IF="eno2"
+export PRO_IF="eno1"
+export ROOT_DISK="/dev/sda"
+export NODES_PLATFORM=BM
+export BASE_DOMAIN="{{ hostvars[host]['domain'] }}"
+export CLUSTER_NAME="{{ hostvars[host]['cluster'] }}"
+export MANAGE_BR_BRIDGE="N"
+export EXTERNAL_SUBNET="{{ hostvars[host]['extcidrnet'] }}"
+export CLUSTER_PRO_IF="eno1"
+{% endfor %}
