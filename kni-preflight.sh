@@ -29,6 +29,8 @@ done
 
 KNIUSER=`who am i|awk {'print $1'}`
 export KNIUSER
+chmod 755 check_dhcp.py
+
 if [ $KNIUSER == "root" ]; then
    echo "KNI-Preflight cannot be run as root and must use sudo"; exit 1
 fi
