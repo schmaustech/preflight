@@ -2,6 +2,9 @@
 #####################################################################################################
 #
 # Python script to pass in a MAC Address and send out a DHCPDISCOVER packet and get reply
+# Original Author: Hassane
+# Original Reference Link: http://code.activestate.com/recipes/577649-dhcp-query/
+# Original Licence: MIT License
 #
 #####################################################################################################
 
