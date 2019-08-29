@@ -156,6 +156,9 @@ fi
 # Run Make Install Config Playbook                               #
 ##################################################################
 
+if [ -f install-config.yaml ]; then
+  cp -f install-config.yaml install-config.yaml.orig
+fi
 if (ansible-playbook -i hosts make-install-config.yml >/dev/null 2>&1); then
   echo Generation of Install Config Yaml: Success
 else
