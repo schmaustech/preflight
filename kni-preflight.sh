@@ -139,12 +139,22 @@ echo nummasters=3>>hosts
 int_if=""
 pro_if=""
 lshw -class network | grep -A 1 "bus info" | grep name | awk -F': ' '{print $2}'|grep e | while read interface; do
-if ((`ip addr show $interface| grep -o "inet [0-9]*\.[0-9]*\.[0-9]*\.[0-9]*" | grep -o "[0-9]*\.[0-9]*\.[0-9]*\.[0-9]*">/dev/null 2>&1`) && (`ip link show $interface|grep "state UP">/dev/null 2>&1`) && [ $int_if == ""]); then
-      echo "intif=$interface">>hosts
-   fi
-if ((! `ip addr show $interface| grep -o "inet [0-9]*\.[0-9]*\.[0-9]*\.[0-9]*" | grep -o "[0-9]*\.[0-9]*\.[0-9]*\.[0-9]*">/dev/null 2>&1`) && (`ip link show $interface|grep "state UP">/dev/null 2>&1`) && [ $pro_if == ""]); then
-      echo "proif=$interface">>hosts
-   fi
+if (`ip a|grep $interface|grep baremetal>/dev/null 2>&1`); then
+        echo "intif=$interface">>hosts
+        int_if="$interface"
+elif (`ip a|grep $interface|grep provisioning>/dev/null 2>&1`); then
+        echo "proif=$interface">>hosts
+        pro_if="$interface"
+else
+        if ((`ip addr show $interface| grep -o "inet [0-9]*\.[0-9]*\.[0-9]*\.[0-9]*" | grep -o "[0-9]*\.[0-9]*\.[0-9]*\.[0-9]*">/dev/null 2>&1`) && (`ip link show $interface|grep "state UP">/dev/null 2>&1`) && [[ $int_if == "" ]]); then
+                echo "intif=$interface">>hosts
+                int_if="$interface"
+        fi
+        if ((! `ip addr show $interface| grep -o "inet [0-9]*\.[0-9]*\.[0-9]*\.[0-9]*" | grep -o "[0-9]*\.[0-9]*\.[0-9]*\.[0-9]*">/dev/null 2>&1`) && (`ip link show $interface|grep "state UP">/dev/null 2>&1`) && [[ $pro_if == "" ]] ); then
+                echo "proif=$interface">>hosts
+                 pro_if="$interface"
+        fi
+fi
 done
 
 ##################################################################
