@@ -133,6 +133,21 @@ echo numworkers=0>>hosts
 echo nummasters=3>>hosts
 
 ##################################################################
+# Determine provisioning interface and baremetal interface       #
+##################################################################
+
+int_if=""
+pro_if=""
+lshw -class network | grep -A 1 "bus info" | grep name | awk -F': ' '{print $2}'|grep e | while read interface; do
+if ((`ip addr show $interface| grep -o "inet [0-9]*\.[0-9]*\.[0-9]*\.[0-9]*" | grep -o "[0-9]*\.[0-9]*\.[0-9]*\.[0-9]*">/dev/null 2>&1`) && (`ip link show $interface|grep "state UP">/dev/null 2>&1`) && [ $int_if == ""]); then
+      echo "intif=$interface">>hosts
+   fi
+if ((! `ip addr show $interface| grep -o "inet [0-9]*\.[0-9]*\.[0-9]*\.[0-9]*" | grep -o "[0-9]*\.[0-9]*\.[0-9]*\.[0-9]*">/dev/null 2>&1`) && (`ip link show $interface|grep "state UP">/dev/null 2>&1`) && [ $pro_if == ""]); then
+      echo "proif=$interface">>hosts
+   fi
+done
+
+##################################################################
 # Run redfish.yml Playbook				                            	 #                                                              
 ################################################################## 
 
