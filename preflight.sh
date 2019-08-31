@@ -1,10 +1,13 @@
 #!/bin/bash
-##################################################################
-# This script generates the KNI Configuration files for a deploy #
-##################################################################
-##################################################################
-# Set master iDRAC IP addresses & Username/Password for iDRAC    #
-##################################################################
+###########################################################################################################################
+# This script generates baremetal OCP configuration files and also validates physical environment is ready for deployment 
+# -Creates install-config.yml
+# -Creates config_user.sh
+# -Creates ironic_hosts.json
+# -Validates DNS entries for api,ns1 and *.apps exists
+# -Validates DHCP entries for external MAC addresses are present on network from DHCP server
+# -Validates DNS for external host addresses are present
+############################################################################################################################
 
 howto(){
   echo "Usage: kni-preflight -u username -p password -m master-0-ip,master-1-ip,master-2-ip -w worker-0-ip,worker-1-ip"
