@@ -82,7 +82,8 @@ fi
 # Grab cluster and domain from discovery			                   #
 ##################################################################
 
-echo Discovering Cluster Name and Domain...
+echo $dfstatus
+echo -n Discovering Cluster Name and Domain...
 bootstrapip=`ip addr show baremetal| grep 'inet ' | cut -d/ -f1 | awk '{ print $2}'`
 dnsname=`nslookup $bootstrapip|grep name| cut -d= -f2|sed s'/^ //'g|sed s'/.$//g'`
 hostname=`echo $dnsname|awk -F. {'print $1'}`
@@ -96,13 +97,13 @@ echo "Hostname_Short: $hostname">>dhcps
 echo "Clustername: $clustername">>dhcps
 echo "Domain: $domain">>dhcps
 echo "###">>dhcps
+echo "Success"
 
 ##################################################################
 # Build initial inventory file					                         #
 ##################################################################
 
-echo $dfstatus
-echo "Building initial host inventory file..."
+echo -n "Creating initial host inventory file..."
 echo [bmcs]>hosts
 c=0
 for ipaddr in "${mipaddresses[@]}"
@@ -121,11 +122,13 @@ echo bmcuser=$dracuser>>hosts
 echo bmcpassword=$dracpassword>>hosts
 echo domain=$domain>>hosts
 echo cluster=$clustername>>hosts
+echo "Success"
 
 #################################################################
 # Determine External Network CIDR                               #
 #################################################################
 
+echo -n "Determining external network CIDR..."
 BARNET=`/usr/bin/ipcalc -n "$(/usr/sbin/ip -o addr show|grep baremetal|grep -v inet6|awk {'print $4'})"|cut -f2 -d=`
 BARCIDR=`/usr/bin/ipcalc -p "$(/usr/sbin/ip -o addr show|grep baremetal|grep -v inet6|awk {'print $4'})"|cut -f2 -d=`
 echo '[bootstrap]'>>hosts
@@ -134,14 +137,16 @@ echo '[bootstrap:vars]'>>hosts
 echo extcidrnet=$BARNET/$BARCIDR>>hosts
 echo numworkers=0>>hosts
 echo nummasters=3>>hosts
+echo "Success"
 
 ##################################################################
 # Determine provisioning interface and baremetal interface       #
 ##################################################################
 
+echo -n "Determining provisioning and baremetal interfaces..."
 int_if=""
 pro_if=""
-lshw -class network | grep -A 1 "bus info" | grep name | awk -F': ' '{print $2}'|grep e | while read interface; do
+lshw -quiet -class network | grep -A 1 "bus info" | grep name | awk -F': ' '{print $2}'|grep e | while read interface; do
 if (`ip a|grep $interface|grep baremetal>/dev/null 2>&1`); then
         echo "intif=$interface">>hosts
         int_if="$interface"
@@ -159,54 +164,38 @@ else
         fi
 fi
 done
+echo "Success"
 
 ##################################################################
 # Run redfish.yml Playbook				                            	 #                                                              
 ################################################################## 
 
+echo -n "Determining MAC addresses of baremetal nodes..."
 if (ansible-playbook -i hosts redfish.yml >/dev/null 2>&1); then
-  echo Access to RedFish enabled BMC: Success
+  echo "Success"
 else
-  echo Access to RedFish enabled BMC: Failed; exit 1
+  echo "Failed"; exit 1
 fi
 
 ##################################################################
-# Run make_ironic.yml Playbook				                        	 #
+# Run Make Configurations Playbook                               #
 ##################################################################
 
-if (ansible-playbook -i hosts make_ironic_json.yml >/dev/null 2>&1); then
-  echo Generation of Ironic JSON: Success
-else
-  echo Generation of Ironic JSON: Failed; exit 1
-fi
-
-##################################################################
-# Run Make Install Config Playbook                               #
-##################################################################
-
+echo -n "Creating configuration files..."
 if [ -f install-config.yaml ]; then
   cp -f install-config.yaml install-config.yaml.orig
 fi
-if (ansible-playbook -i hosts make-install-config.yml >/dev/null 2>&1); then
-  echo Generation of Install Config Yaml: Success
+if (ansible-playbook -i hosts make_configurations.yml >/dev/null 2>&1); then
+  echo "Success"
 else
-  echo Generation of Install Config Yaml: Failed; exit 1
-fi
-
-##################################################################
-# Run Make Config User Playbook                                  #
-##################################################################
-
-if (ansible-playbook -i hosts make_config_user.yml >/dev/null 2>&1); then
-  echo Generation of Config_user.sh: Success
-else
-  echo Generation of Config_user.sh: Failed; exit 1
+  echo "Failed"; exit 1
 fi
 
 ##################################################################
 # Add pullsecret to install-config.yaml                          #
 ##################################################################
 
+echo -n "Adding pullsecret to install-config.yaml..."
 PULLSECRET=pullsecret.txt
 if [ -f "$PULLSECRET" ]; then
    sed -i "s/^'//" $PULLSECRET
@@ -215,12 +204,12 @@ if [ -f "$PULLSECRET" ]; then
    sed -i "s/PULLSECRETHERE/$(sed 's:/:\\/:g' $PULLSECRET)/" config_$KNIUSER.sh
    python -c 'import yaml, sys; yaml.safe_load(sys.stdin)' < install-config.yaml
    if [ $? -ne 0 ]; then
-      echo "Pullsecret addition to install-config.yaml: Failed"; exit 1
+      echo "Failed"; exit 1
    else
-      echo "Pullsecret addition to install-config.yaml: Success"
+      echo "Success"
    fi
 else
-   echo "Pullsecret addition to install-config.yaml: Failed - Missing pullsecret file"; exit 1
+   echo "Failed - Missing pullsecret.txt"; exit 1
 fi
 
 ##################################################################
