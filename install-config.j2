@@ -1,5 +1,5 @@
 {% for host in groups['bootstrap'] %}
-apiVersion: v1beta4
+apiVersion: v1
 baseDomain: {{ hostvars[host]['domain'] }}
 metadata:
   name: {{ hostvars[host]['cluster'] }}
