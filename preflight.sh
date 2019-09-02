@@ -200,6 +200,7 @@ PULLSECRET=pullsecret.txt
 if [ -f "$PULLSECRET" ]; then
    sed -i "s/^'//" $PULLSECRET
    sed -i "s/'$//" $PULLSECRET 
+   sed -i ':a;N;$!ba;s/\n//g' $PULLSECRET
    sed -i "s/PULLSECRETHERE/$(sed 's:/:\\/:g' $PULLSECRET)/" install-config.yaml
    sed -i "s/PULLSECRETHERE/$(sed 's:/:\\/:g' $PULLSECRET)/" config_$KNIUSER.sh
    python -c 'import yaml, sys; yaml.safe_load(sys.stdin)' < install-config.yaml
