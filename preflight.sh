@@ -171,11 +171,15 @@ echo "Success"
 ################################################################## 
 
 echo -n "Determining MAC addresses of baremetal nodes..."
+firewall-cmd --zone=public --add-port=68/udp >/dev/null 2>&1
+firewall-cmd --zone=public --add-port=67/udp >/dev/null 2>&1
 if (ansible-playbook -i hosts redfish.yml >/dev/null 2>&1); then
   echo "Success"
 else
   echo "Failed"; exit 1
 fi
+firewall-cmd --zone=public --remove-port=68/udp >/dev/null 2>&1
+firewall-cmd --zone=public --remove-port=67/udp >/dev/null 2>&1
 
 ##################################################################
 # Run Make Configurations Playbook                               #
