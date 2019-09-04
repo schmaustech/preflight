@@ -44,6 +44,10 @@ if ([ -z "$dracuser" ] || [ -z "$dracpassword" ] || [ -z "$mip" ]  || [ -z "$wip
    exit 1
 fi
 
+if ([ -z "$mip" ] && [ ! -z "$wip" ]) || ([ -z "$wip" ] && [ ! -z "$mip" ]) then
+   echo "When using -m or -w they must be specified together"; exit 1
+fi
+
 if ([ -z "$dracuser" ] && [ "$df" -eq "1" ]) then
    dracuser="root"
 fi
