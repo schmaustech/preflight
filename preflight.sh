@@ -201,7 +201,13 @@ fi
 ##################################################################
 
 echo -n "Adding pullsecret to install-config.yaml..."
-PULLSECRET=pullsecret.txt
+if [ -f $SCRIPTPATH/pull-secret ] && ( file pull-secret|grep ASCII>/dev/null 2>&1 ); then
+   PULLSECRET="pull-secret"
+elif [ -f $SCRIPTPATH/pull-secret.txt ] && ( file pull-secret.txt|grep ASCII>/dev/null 2>&1 ); then
+   PULLSECRET="pull-secret.txt"
+else
+   echo "Failed - pull-secret or pull-secret.txt file not found"; exit 1
+fi
 if [ -f "$PULLSECRET" ]; then
    if ( ! grep registry.svc.ci.openshift.org $PULLSECRET>/dev/null 2>&1 ) || ( ! grep cloud.openshift.com $PULLSECRET>/dev/null 2>&1 ); then
         echo "Failed - Invalid $PULLSECRET"; exit 1
