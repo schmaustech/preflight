@@ -30,6 +30,7 @@ h) howto; exit 0;;
 esac
 done
 
+SCRIPTPATH="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 KNIUSER=`who am i|awk {'print $1'}`
 export KNIUSER
 chmod 755 check_dhcp.py
@@ -202,6 +203,9 @@ fi
 echo -n "Adding pullsecret to install-config.yaml..."
 PULLSECRET=pullsecret.txt
 if [ -f "$PULLSECRET" ]; then
+   if ( ! grep registry.svc.ci.openshift.org $PULLSECRET>/dev/null 2>&1 ) || ( ! grep cloud.openshift.com $PULLSECRET>/dev/null 2>&1 ); then
+        echo "Failed - Invalid $PULLSECRET"; exit 1
+   fi
    sed -i "s/^'//" $PULLSECRET
    sed -i "s/'$//" $PULLSECRET 
    sed -i ':a;N;$!ba;s/\n//g' $PULLSECRET
@@ -214,7 +218,7 @@ if [ -f "$PULLSECRET" ]; then
       echo "Success"
    fi
 else
-   echo "Failed - Missing pullsecret.txt"; exit 1
+   echo "Failed - Missing $PULLSECRET"; exit 1
 fi
 
 ##################################################################
@@ -265,4 +269,4 @@ column -t dhcps | sed 's/###/ /g'
 # Since we ran as sudo cleanup file perms
 ##################################################################
 
-chown $KNIUSER:$KNIUSER ./*
+chown $KNIUSER:$KNIUSER $SCRIPTPATH/*
