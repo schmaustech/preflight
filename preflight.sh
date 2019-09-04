@@ -12,7 +12,7 @@
 howto(){
   echo "Usage: preflight.sh -u username -p password -m master-0-ip,master-1-ip,master-2-ip -w worker-0-ip,worker-1-ip"
   echo "Example: preflight.sh -u root -p calvin -m 172.22.0.231,172.22.0.232,172.22.0.233 -w 172.22.0.234"
-  echo "Example: preflight.sh -u root -p calvin -d"
+  echo "Example: preflight.sh -u root -p calvin -d (use default settings where switches are not specified)"
 }
 
 df=0
