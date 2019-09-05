@@ -273,7 +273,11 @@ fi
 # Print Out DHCP/DNS Scope				                             	 #
 ##################################################################
 
-column -t dhcps | sed 's/###/ /g'
+#column -t dhcps | sed 's/###/ /g'
+echo " "
+head -n 7 dhcps | tail -n +2 | column -t
+echo " "
+tail -n +9 dhcps | column -t
 
 ##################################################################
 # Since we ran as sudo cleanup file perms
