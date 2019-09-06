@@ -53,7 +53,7 @@ if ([ -z "$dracuser" ] && [ "$df" -eq "1" ]) then
 fi
 
 if ([ -z "$dracpassword" ] && [ "$df" -eq "1" ]) then
-   dracpassword="calvin"
+   dracpassword="r3dh@tPW"
 fi
 
 if ([ -z "$mip" ] && [ "$df" -eq "1" ]) then
