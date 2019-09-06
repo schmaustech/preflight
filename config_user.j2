@@ -3,14 +3,12 @@
 set +x
 export PULL_SECRET='PULLSECRETHERE'
 set -x
-export NODES_FILE="/home/{{ lookup('env','KNIUSER') }}/ironic_hosts.json"
 export INT_IF="{{ hostvars[host]['intif'] }}"
 export PRO_IF="{{ hostvars[host]['proif'] }}"
-export ROOT_DISK="/dev/sda"
-export NODES_PLATFORM=BM
-export BASE_DOMAIN="{{ hostvars[host]['domain'] }}"
-export CLUSTER_NAME="{{ hostvars[host]['cluster'] }}"
-export MANAGE_BR_BRIDGE="N"
-export EXTERNAL_SUBNET="{{ hostvars[host]['extcidrnet'] }}"
-export CLUSTER_PRO_IF="{{ hostvars[host]['proif'] }}"
+
+# Add extra registry (as insecure) if needed, such as
+#EXTRA_REGISTRY=registry.example.com
+
+# Set loglevel for OpenShift installation
+#export LOGLEVEL="debug"
 {% endfor %}
