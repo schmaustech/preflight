@@ -2,17 +2,17 @@ Preflight Brief
 
 **Purpose:**
 
-The KNI-Preflight script is designed to validate some environment settings on the appliance provisioning node before the cluster deployment is actually executed.  By pre-checking certain requirements the use of this script can mitigate the need to spend time on a deployment that might ultimate fail and need to be rerun.  Further the script produces a usable ironic\_hosts.json, install-config.yaml and config\_user.sh consumed by current methods of deployment: dev-scripts or install-scripts.
+The Preflight script is designed to validate some environment settings on the appliance provisioning node before the cluster deployment is actually executed.  By pre-checking certain requirements the use of this script can mitigate the need to spend time on a deployment that might ultimate fail and need to be rerun.  Further the script produces a usable ironic\_hosts.json, install-config.yaml and config\_user.sh consumed by current methods of deployment: dev-scripts or install-scripts.
 
 Dev-scripts: [https://github.com/openshift-metal3/dev-scripts](https://github.com/openshift-metal3/dev-scripts)
 
 Install-scripts: [https://github.com/openshift-kni/install-scripts](https://github.com/openshift-kni/install-scripts)
 
-**What KNI-Preflight Requires:**
+**What Preflight Requires:**
 
 The script requires that you feed it the Dell iDRAC IP addresses and the iDRAC username and password for the 3 master nodes and 1 worker node (the provisioning node is considered a worker node).   There is also a -d switch which allows for the use of the default idrac information the current appliance ships with in a standard configuration.   The script should be run from the provisioning node as a regular user with sudo.
 
-**What KNI-Preflight Does:**
+**What Preflight Does:**
 
 The script has multiple components and can be broken down into the following sections in order of execution:
 
@@ -28,7 +28,7 @@ The script has multiple components and can be broken down into the following sec
 - Insert pullsecret into install-config.yaml and config\_user.sh
 - Inserts sshkey into install-config.yaml and config\_user.sh
 
-**Future KNI-Preflight:**
+**Future Preflight:**
 
 The script might be altered in the future depending on what is required from the real OCP installer.
 
