@@ -1,5 +1,3 @@
-Preflight Brief
-
 **Purpose:**
 
 The Preflight script is designed to validate some environment settings on the appliance provisioning node before the cluster deployment is actually executed.  By pre-checking certain requirements the use of this script can mitigate the need to spend time on a deployment that might ultimate fail and need to be rerun.  Further the script produces a usable ironic\_hosts.json, install-config.yaml and config\_user.sh consumed by current methods of deployment: dev-scripts or install-scripts.
